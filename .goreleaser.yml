@@ -9,13 +9,13 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - linux
+      # - linux
       - darwin
     goarch:
-      - amd64
+      # - amd64
       - arm64
     ldflags:
-      - -s -w -X github.com/tomozo6/tapir/cmd.Version=v{{.Version}}
+      - -s -w -X github.com/tomozo6/comverter/cmd.Version=v{{.Version}}
 archives:
   - name_template: >-
       {{ .ProjectName }}_
