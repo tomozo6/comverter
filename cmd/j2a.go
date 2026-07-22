@@ -8,13 +8,15 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/davidbyttow/govips/v2/vips"
 	"github.com/spf13/cobra"
 )
 
 var (
-	quality int
+	quality         int
+	vipsStartupOnce sync.Once
 )
 
 // j2aCmd represents the j2a command
@@ -48,9 +50,11 @@ func init() {
 // The input file is specified by inputFile, and the output file is specified by outputFile.
 // The quality parameter specifies the quality of the output AVIF image.
 func j2a(inputFile string, outputFile string, quality int) {
-	// VIPS初期化
-	vips.Startup(nil)
-	defer vips.Shutdown()
+	// libvips can only be started once in a process. It is released when the
+	// process exits, allowing batch conversion to reuse the same instance.
+	vipsStartupOnce.Do(func() {
+		vips.Startup(nil)
+	})
 
 	// 入力ファイルを読み込む
 	img, err := vips.NewImageFromFile(inputFile)

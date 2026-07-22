@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -77,7 +78,7 @@ func isJPEG(path string) bool {
 	// JPEGファイルのシグネチャを確認
 	buf := make([]byte, 3)
 	_, err = file.Read(buf)
-	return err == nil
+	return err == nil && bytes.Equal(buf, []byte{0xff, 0xd8, 0xff})
 }
 
 // ディレクトリ内のJPEGファイルをavifに変換してoutputディレクトリに保存する関数
@@ -86,7 +87,7 @@ func j2adir(inputDirPath string, outputDirPath string, quality int) error {
 		if err != nil {
 			return err
 		}
-		if isJPEG(path) {
+		if !d.IsDir() && isJPEG(path) {
 			outputFilePath := outputDirPath + "/" + getOutputFileName(path)
 
 			j2a(path, outputFilePath, quality)
