@@ -9,7 +9,9 @@ import (
 
 func TestJ2AConvertsJPEGToAVIF(t *testing.T) {
 	outputPath := filepath.Join(t.TempDir(), "converted.avif")
-	j2a(filepath.Join("..", "tests", "input.jpg"), outputPath, 80)
+	if err := j2a(filepath.Join("..", "tests", "input.jpg"), outputPath, 80); err != nil {
+		t.Fatalf("convert JPEG: %v", err)
+	}
 
 	output, err := os.ReadFile(outputPath)
 	if err != nil {
@@ -20,6 +22,21 @@ func TestJ2AConvertsJPEGToAVIF(t *testing.T) {
 	}
 	if !bytes.Contains(output[:min(len(output), 64)], []byte("ftypavif")) {
 		t.Fatal("output is not an AVIF file")
+	}
+}
+
+func TestJ2ARejectsNonJPEGAndInvalidQuality(t *testing.T) {
+	directory := t.TempDir()
+	nonJPEGPath := filepath.Join(directory, "input.txt")
+	if err := os.WriteFile(nonJPEGPath, []byte("not a JPEG"), 0o644); err != nil {
+		t.Fatalf("write non-JPEG fixture: %v", err)
+	}
+
+	if err := j2a(nonJPEGPath, filepath.Join(directory, "output.avif"), 30); err == nil {
+		t.Fatal("j2a(non-JPEG) returned nil error")
+	}
+	if err := j2a(filepath.Join("..", "tests", "input.jpg"), filepath.Join(directory, "output.avif"), 101); err == nil {
+		t.Fatal("j2a(quality 101) returned nil error")
 	}
 }
 

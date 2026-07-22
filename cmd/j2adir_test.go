@@ -39,6 +39,24 @@ func TestJ2ADirConvertsJPEGFilesRecursively(t *testing.T) {
 	}
 }
 
+func TestJ2ADirRejectsOutputNameCollision(t *testing.T) {
+	inputDir := t.TempDir()
+	outputDir := filepath.Join(t.TempDir(), "output")
+	copyFixture(t, filepath.Join(inputDir, "photo.jpg"))
+	nestedDir := filepath.Join(inputDir, "nested")
+	if err := os.Mkdir(nestedDir, 0o755); err != nil {
+		t.Fatalf("create nested input directory: %v", err)
+	}
+	copyFixture(t, filepath.Join(nestedDir, "photo.jpg"))
+
+	if err := j2adir(inputDir, outputDir, 30); err == nil {
+		t.Fatal("j2adir() returned nil error for duplicate output name")
+	}
+	if _, err := os.Stat(filepath.Join(outputDir, "photo.avif")); !os.IsNotExist(err) {
+		t.Errorf("output was created despite collision: %v", err)
+	}
+}
+
 func TestIsDir(t *testing.T) {
 	directory := t.TempDir()
 	if got, err := isDir(directory); err != nil || !got {
@@ -56,7 +74,11 @@ func TestIsJPEG(t *testing.T) {
 	directory := t.TempDir()
 	jpegPath := filepath.Join(directory, "input.jpg")
 	copyFixture(t, jpegPath)
-	if !isJPEG(jpegPath) {
+	isJPEGFile, err := isJPEG(jpegPath)
+	if err != nil {
+		t.Fatalf("isJPEG(JPEG fixture): %v", err)
+	}
+	if !isJPEGFile {
 		t.Fatal("isJPEG(JPEG fixture) = false, want true")
 	}
 
@@ -64,7 +86,11 @@ func TestIsJPEG(t *testing.T) {
 	if err := os.WriteFile(nonJPEGPath, []byte("not a JPEG"), 0o644); err != nil {
 		t.Fatalf("write non-JPEG fixture: %v", err)
 	}
-	if isJPEG(nonJPEGPath) {
+	isJPEGFile, err = isJPEG(nonJPEGPath)
+	if err != nil {
+		t.Fatalf("isJPEG(non-JPEG fixture): %v", err)
+	}
+	if isJPEGFile {
 		t.Fatal("isJPEG(non-JPEG fixture) = true, want false")
 	}
 }
