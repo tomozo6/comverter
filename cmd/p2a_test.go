@@ -17,6 +17,12 @@ func TestP2ARejectsNonPDF(t *testing.T) {
 	}
 }
 
+func TestP2ARejectsInvalidDPI(t *testing.T) {
+	if err := p2aWithDensity("unused.pdf", t.TempDir(), 30, 0); err == nil {
+		t.Fatal("p2aWithDensity(dpi 0) returned nil error")
+	}
+}
+
 func TestGetPDFPageOutputFileName(t *testing.T) {
 	if got, want := getPDFPageOutputFileName("documents/sample.pdf", 1, 3), "sample-001.avif"; got != want {
 		t.Errorf("getPDFPageOutputFileName() = %q, want %q", got, want)

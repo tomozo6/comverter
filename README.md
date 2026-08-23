@@ -71,10 +71,10 @@ go run . --help
 ./comverter p2a --input sample.pdf
 ```
 
-`--output`（`-o`）で出力ディレクトリを指定できます。指定先が存在しない場合は自動で作成されます。
+`--output`（`-o`）で出力ディレクトリを指定できます。指定先が存在しない場合は自動で作成されます。PDF は既定で 300 DPI でラスタライズします。細部をより鮮明にしたい場合は `--dpi` を指定してください（DPI を上げるほど出力サイズと変換時間も増えます）。
 
 ```sh
-./comverter p2a -i sample.pdf -o output/pages -q 80
+./comverter p2a -i sample.pdf -o output/pages -q 80 --dpi 300
 ```
 
 ## コマンド一覧
@@ -83,7 +83,7 @@ go run . --help
 | --- | --- |
 | `j2a -i <file> [-q <quality>]` | JPEG ファイルを AVIF に変換 |
 | `j2adir -i <directory> [-q <quality>]` | ディレクトリを再帰的に変換 |
-| `p2a -i <file> [-o <directory>] [-q <quality>]` | PDF の各ページを AVIF に変換 |
+| `p2a -i <file> [-o <directory>] [-q <quality>] [--dpi <dpi>]` | PDF の各ページを AVIF に変換 |
 | `completion <shell>` | シェル補完スクリプトを生成 |
 
 詳細は次で確認できます。

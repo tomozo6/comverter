@@ -29,8 +29,12 @@ var p2aCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		density, err := cmd.Flags().GetInt("dpi")
+		if err != nil {
+			return err
+		}
 
-		if err := p2a(input, outputDir, quality); err != nil {
+		if err := p2aWithDensity(input, outputDir, quality, density); err != nil {
 			return err
 		}
 		_, err = fmt.Fprintln(cmd.OutOrStdout(), "Successfully converted PDF pages to AVIF!")
@@ -43,12 +47,21 @@ func init() {
 	p2aCmd.Flags().StringP("input", "i", "input.pdf", "Input PDF file.")
 	p2aCmd.Flags().StringP("output", "o", ".", "Output directory for AVIF files.")
 	p2aCmd.Flags().IntP("quality", "q", 30, "Quality of the output AVIF files (0-100).")
+	p2aCmd.Flags().Int("dpi", 300, "PDF rasterization resolution in DPI.")
 }
 
 // p2a converts every page in a PDF document to a separate AVIF file.
 func p2a(inputFile string, outputDir string, quality int) error {
+	return p2aWithDensity(inputFile, outputDir, quality, 300)
+}
+
+// p2aWithDensity converts every PDF page at the supplied rasterization density.
+func p2aWithDensity(inputFile string, outputDir string, quality int, density int) error {
 	if err := validateQuality(quality); err != nil {
 		return err
+	}
+	if density < 1 {
+		return fmt.Errorf("dpi must be at least 1, got %d", density)
 	}
 	input, err := os.ReadFile(inputFile)
 	if err != nil {
@@ -66,6 +79,7 @@ func p2a(inputFile string, outputDir string, quality int) error {
 	})
 	params := vips.NewImportParams()
 	params.NumPages.Set(-1)
+	params.Density.Set(density)
 	document, err := vips.LoadImageFromBuffer(input, params)
 	if err != nil {
 		return fmt.Errorf("load PDF %q: %w", inputFile, err)
@@ -82,6 +96,7 @@ func p2a(inputFile string, outputDir string, quality int) error {
 		pageParams := vips.NewImportParams()
 		pageParams.Page.Set(page)
 		pageParams.NumPages.Set(1)
+		pageParams.Density.Set(density)
 		image, err := vips.LoadImageFromBuffer(input, pageParams)
 		if err != nil {
 			return fmt.Errorf("load PDF page %d: %w", page+1, err)
