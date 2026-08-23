@@ -1,6 +1,6 @@
 # comverter
 
-JPEG 画像を AVIF に変換する Go 製 CLI ツールです。単一ファイルの変換と、ディレクトリ内の画像の一括変換に対応しています。
+JPEG 画像と PDF の各ページを AVIF に変換する Go 製 CLI ツールです。単一ファイルの変換、ディレクトリ内の画像の一括変換、PDF ページの変換に対応しています。
 
 ## 必要要件
 
@@ -63,12 +63,27 @@ go run . --help
 
 > 注意: 一括変換の出力ではサブディレクトリ構造を保持しません。同じファイル名が複数ある場合は、上書きを防ぐためエラーで終了します。
 
+### PDF の各ページを変換する
+
+`p2a` は PDF の全ページを個別の AVIF に変換します。既定ではカレントディレクトリへ、`sample-001.avif` のように出力します。
+
+```sh
+./comverter p2a --input sample.pdf
+```
+
+`--output`（`-o`）で出力ディレクトリを指定できます。指定先が存在しない場合は自動で作成されます。
+
+```sh
+./comverter p2a -i sample.pdf -o output/pages -q 80
+```
+
 ## コマンド一覧
 
 | コマンド | 説明 |
 | --- | --- |
 | `j2a -i <file> [-q <quality>]` | JPEG ファイルを AVIF に変換 |
 | `j2adir -i <directory> [-q <quality>]` | ディレクトリを再帰的に変換 |
+| `p2a -i <file> [-o <directory>] [-q <quality>]` | PDF の各ページを AVIF に変換 |
 | `completion <shell>` | シェル補完スクリプトを生成 |
 
 詳細は次で確認できます。
@@ -76,6 +91,7 @@ go run . --help
 ```sh
 ./comverter j2a --help
 ./comverter j2adir --help
+./comverter p2a --help
 ```
 
 ## ライセンス

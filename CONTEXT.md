@@ -1,6 +1,6 @@
 # Image Conversion
 
-JPEG 画像を AVIF 画像へ変換するコマンドラインツールのコンテキストです。
+JPEG 画像および PDF 文書を AVIF 画像へ変換するコマンドラインツールのコンテキストです。
 
 ## Language
 
@@ -15,3 +15,11 @@ _Avoid_: converted image, result file
 **Batch conversion**:
 入力ディレクトリを再帰的に走査して、見つかった Source JPEG ごとに AVIF output を生成する処理。
 _Avoid_: directory conversion, bulk conversion
+
+**Source PDF**:
+ページごとに AVIF output を生成する入力 PDF 文書。
+_Avoid_: input document, source file
+
+**PDF page output**:
+Source PDF の 1 ページから生成される AVIF output。ファイル名は入力 PDF のベース名、3 桁以上のページ番号、`.avif` をこの順に連結する。
+_Avoid_: PDF output, converted page

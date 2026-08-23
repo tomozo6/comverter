@@ -13,8 +13,8 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:           "comverter",
-	Short:         "Convert JPEG images to AVIF",
-	Long:          "comverter converts a JPEG file or a directory of JPEG files to AVIF.",
+	Short:         "Convert JPEG images and PDF pages to AVIF",
+	Long:          "comverter converts JPEG files, directories of JPEG files, and PDF pages to AVIF.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
 }
