@@ -1,6 +1,6 @@
 module github.com/tomozo6/comverter
 
-go 1.22.4
+go 1.27.0
 
 require (
 	github.com/davidbyttow/govips/v2 v2.15.0

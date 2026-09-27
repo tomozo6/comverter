@@ -24,10 +24,10 @@ func TestP2ARejectsInvalidDPI(t *testing.T) {
 }
 
 func TestGetPDFPageOutputFileName(t *testing.T) {
-	if got, want := getPDFPageOutputFileName("documents/sample.pdf", 1, 3), "sample-001.avif"; got != want {
+	if got, want := getPDFPageOutputFileName(1, 3), "001.avif"; got != want {
 		t.Errorf("getPDFPageOutputFileName() = %q, want %q", got, want)
 	}
-	if got, want := getPDFPageOutputFileName("documents/book.pdf", 1000, 4), "book-1000.avif"; got != want {
+	if got, want := getPDFPageOutputFileName(1000, 4), "1000.avif"; got != want {
 		t.Errorf("getPDFPageOutputFileName() = %q, want %q", got, want)
 	}
 }

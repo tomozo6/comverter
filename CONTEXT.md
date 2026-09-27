@@ -21,5 +21,5 @@ _Avoid_: directory conversion, bulk conversion
 _Avoid_: input document, source file
 
 **PDF page output**:
-Source PDF の 1 ページから生成される AVIF output。ファイル名は入力 PDF のベース名、3 桁以上のページ番号、`.avif` をこの順に連結する。
+Source PDF の 1 ページから生成される AVIF output。ファイル名は 3 桁以上のページ番号と `.avif` をこの順に連結する。
 _Avoid_: PDF output, converted page

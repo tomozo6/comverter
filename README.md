@@ -4,7 +4,7 @@ JPEG 画像と PDF の各ページを AVIF に変換する Go 製 CLI ツール�
 
 ## 必要要件
 
-- Go 1.22 以降
+- Go 1.27.0 以降
 - [libvips](https://www.libvips.org/)（AVIF エンコーダーを含むビルド）
 
 macOS では Homebrew で libvips を導入できます。
@@ -20,13 +20,14 @@ brew install vips
 ```sh
 git clone https://github.com/tomozo6/comverter.git
 cd comverter
-go build -o comverter .
+mkdir -p ~/.local/bin
+go build -o ~/.local/bin/comverter .
 ```
 
 または、Go から直接実行できます。
 
 ```sh
-go run . --help
+go run main.go --help
 ```
 
 ## 使い方
@@ -65,7 +66,7 @@ go run . --help
 
 ### PDF の各ページを変換する
 
-`p2a` は PDF の全ページを個別の AVIF に変換します。既定ではカレントディレクトリへ、`sample-001.avif` のように出力します。
+`p2a` は PDF の全ページを個別の AVIF に変換します。既定ではカレントディレクトリへ、`001.avif` のように出力します。
 
 ```sh
 ./comverter p2a --input sample.pdf
@@ -75,6 +76,42 @@ go run . --help
 
 ```sh
 ./comverter p2a -i sample.pdf -o output/pages -q 80 --dpi 300
+```
+
+### デスクトップ上のタイトルを一括変換する
+
+`~/Desktop/pdf/<title>/` に置いた PDF 群を、`~/Desktop/avif/<title>/<PDF名（拡張子なし）>/` へ変換するスクリプトです。たとえば `~/Desktop/pdf/titleA/001.pdf` は `~/Desktop/avif/titleA/001/001.avif` のように出力されます。
+
+最初にリポジトリ直下で `comverter` をビルドします。
+
+```sh
+go build -o comverter main.go
+```
+
+タイトル名を渡して実行します。
+
+```sh
+./scripts/convert-desktop-title.sh titleA
+```
+
+既定は品質 80、300 DPI です。必要なら環境変数で変更できます。
+
+```sh
+QUALITY=90 DPI=400 ./scripts/convert-desktop-title.sh titleA
+```
+
+### ディレクトリを GCS へアップロードする
+
+`gcloud` に認証済みの環境では、指定ディレクトリの内容を `gs://tomozo-manga-images/manga/` へ再帰アップロードできます。宛先にしかないオブジェクトは削除しません。
+
+```sh
+./scripts/upload-directory-to-gcs.sh ./output
+```
+
+アップロード内容だけを確認する場合:
+
+```sh
+./scripts/upload-directory-to-gcs.sh ./output --dry-run
 ```
 
 ## コマンド一覧

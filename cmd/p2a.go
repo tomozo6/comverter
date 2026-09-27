@@ -75,11 +75,15 @@ func p2aWithDensity(inputFile string, outputDir string, quality int, density int
 	}
 
 	vipsStartupOnce.Do(func() {
-		vips.Startup(nil)
+		// PDF pages are processed one at a time. Do not retain completed page
+		// operations in libvips' global cache during a long conversion.
+		vips.Startup(&vips.Config{MaxCacheSize: 0, MaxCacheMem: 0})
 	})
+	// Loading every page merely to read metadata makes a high-DPI, long PDF
+	// consume memory proportional to its page count. Loading the first page is
+	// enough: pdfload still exposes the total page count in its metadata.
 	params := vips.NewImportParams()
-	params.NumPages.Set(-1)
-	params.Density.Set(density)
+	params.NumPages.Set(1)
 	document, err := vips.LoadImageFromBuffer(input, params)
 	if err != nil {
 		return fmt.Errorf("load PDF %q: %w", inputFile, err)
@@ -108,7 +112,7 @@ func p2aWithDensity(inputFile string, outputDir string, quality int, density int
 		if err != nil {
 			return fmt.Errorf("convert PDF page %d to AVIF: %w", page+1, err)
 		}
-		outputPath := filepath.Join(outputDir, getPDFPageOutputFileName(inputFile, page+1, pageNumberWidth))
+		outputPath := filepath.Join(outputDir, getPDFPageOutputFileName(page+1, pageNumberWidth))
 		if err := os.WriteFile(outputPath, output, 0o644); err != nil {
 			return fmt.Errorf("write AVIF output %q: %w", outputPath, err)
 		}
@@ -121,10 +125,8 @@ func isPDF(input []byte) bool {
 	return len(input) >= len("%PDF-") && bytes.Equal(input[:len("%PDF-")], []byte("%PDF-"))
 }
 
-func getPDFPageOutputFileName(inputFile string, pageNumber int, pageNumberWidth int) string {
-	base := filepath.Base(inputFile)
-	name := base[:len(base)-len(filepath.Ext(base))]
-	return fmt.Sprintf("%s-%0*d.avif", name, pageNumberWidth, pageNumber)
+func getPDFPageOutputFileName(pageNumber int, pageNumberWidth int) string {
+	return fmt.Sprintf("%0*d.avif", pageNumberWidth, pageNumber)
 }
 
 func max(a, b int) int {

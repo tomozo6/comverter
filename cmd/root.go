@@ -17,6 +17,9 @@ var rootCmd = &cobra.Command{
 	Long:          "comverter converts JPEG files, directories of JPEG files, and PDF pages to AVIF.",
 	SilenceErrors: true,
 	SilenceUsage:  true,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
